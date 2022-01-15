@@ -26,6 +26,15 @@ import {createHttpObservable} from '../common/util';
 export class AboutComponent implements OnInit {
 
     ngOnInit() {
+      const interval$ = timer(3000, 1000);
+      const sub = interval$.subscribe(val => console.log("stream 1: " + val));
+
+      const click$ = fromEvent(document, "click");
+      click$.subscribe((evt) => {
+        console.log('Unsubscribing from stream');
+        sub.unsubscribe();
+        console.log(evt)
+      })
 
 
     }

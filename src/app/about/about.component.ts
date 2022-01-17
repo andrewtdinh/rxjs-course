@@ -15,6 +15,8 @@ import {
     ReplaySubject
 } from 'rxjs';
 import {delayWhen, filter, map, take, timeout} from 'rxjs/operators';
+import {createHttpObservable} from '../common/util';
+
 
 @Component({
     selector: 'about',
@@ -34,9 +36,13 @@ export class AboutComponent implements OnInit {
       //   console.log(evt)
       // })
 
-      const http$ = createHttpObservable("/api/courses")
+      const http$ = createHttpObservable("/api/courses");
+      const courses$ = http$
+        .pipe(
+          map(res => Object.values(res["payload"]))
+        )
 
-      http$.subscribe(
+      courses$.subscribe(
         courses => console.log({ courses }),
         noop,
         () => console.log('Completed')
@@ -48,21 +54,6 @@ export class AboutComponent implements OnInit {
 
 }
 
-function createHttpObservable(url: string) {
-  return Observable.create((observer) => {
-    fetch(url)
-      .then((response) => {
-        return response.json();
-      })
-      .then((body) => {
-        observer.next(body);
-        observer.complete();
-      })
-      .catch((err) => {
-        observer.error(err);
-      });
-  });
-}
 
 
 

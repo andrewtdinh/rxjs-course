@@ -15,8 +15,6 @@ import {
     ReplaySubject
 } from 'rxjs';
 import {delayWhen, filter, map, take, timeout} from 'rxjs/operators';
-import {createHttpObservable} from '../common/util';
-
 
 @Component({
     selector: 'about',
@@ -26,30 +24,17 @@ import {createHttpObservable} from '../common/util';
 export class AboutComponent implements OnInit {
 
     ngOnInit() {
-      const interval$ = timer(3000, 1000);
-      const sub = interval$.subscribe(val => console.log("stream 1: " + val));
+      // const interval$ = timer(3000, 1000);
+      // const sub = interval$.subscribe(val => console.log("stream 1: " + val));
 
-      const click$ = fromEvent(document, "click");
-      click$.subscribe((evt) => {
-        console.log('Unsubscribing from stream');
-        sub.unsubscribe();
-        console.log(evt)
-      })
+      // const click$ = fromEvent(document, "click");
+      // click$.subscribe((evt) => {
+      //   console.log('Unsubscribing from stream');
+      //   sub.unsubscribe();
+      //   console.log(evt)
+      // })
 
-      const http$ = Observable.create(observer => {
-        fetch('/api/courses')
-          .then(response => {
-            return response.json();
-          })
-          .then(body => {
-            observer.next(body);
-            observer.complete();
-          })
-          .catch(err => {
-            observer.error(err);
-
-          })
-      })
+      const http$ = createHttpObservable("/api/courses")
 
       http$.subscribe(
         courses => console.log({ courses }),
@@ -61,6 +46,22 @@ export class AboutComponent implements OnInit {
     }
 
 
+}
+
+function createHttpObservable(url: string) {
+  return Observable.create((observer) => {
+    fetch(url)
+      .then((response) => {
+        return response.json();
+      })
+      .then((body) => {
+        observer.next(body);
+        observer.complete();
+      })
+      .catch((err) => {
+        observer.error(err);
+      });
+  });
 }
 
 
